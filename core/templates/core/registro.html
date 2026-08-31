@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Alimento</title>
+</head>
+<body>
+    <h1>Publicar Alimento para Donación</h1>
+    <a href="{% url 'index' %}">Volver al inicio</a>
+    <hr>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label>Nombre del alimento:</label><br>
+            <input type="text" name="nombre" required>
+        </div>
+        <br>
+        <div>
+            <label>Categoría:</label><br>
+            <input type="text" name="categoria" required>
+        </div>
+        <br>
+        <div>
+            <label>Cantidad (unidades/kg):</label><br>
+            <input type="number" name="cantidad" min="1" required>
+        </div>
+        <br>
+        <div>
+            <label>Fecha Límite de Retiro:</label><br>
+            <input type="date" name="fecha_limite" required>
+        </div>
+        <br>
+        <button type="submit">Guardar Registro</button>
+    </form>
+</body>
+</html>

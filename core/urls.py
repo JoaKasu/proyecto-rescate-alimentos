@@ -1,11 +1,7 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import LoteAlimentoViewSet, ReservaViewSet
-
-router = DefaultRouter()
-router.register(r'lotes', LoteAlimentoViewSet)
-router.register(r'reservas', ReservaViewSet)
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', views.index, name='index'),
+    path('registro/', views.registrar_alimento, name='registro'),
 ]

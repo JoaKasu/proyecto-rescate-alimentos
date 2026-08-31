@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rescate Solidario</title>
+</head>
+<body>
+    <h1>Plataforma de Redistribución de Alimentos (ODS 2 y ODS 12)</h1>
+    <a href="{% url 'registro' %}">Publicar Nuevo Alimento</a>
+    <hr>
+
+    <h2>Alimentos Registrados</h2>
+    <p>Total de registros: <strong>{{ total_items }}</strong></p>
+
+    {% if hay_disponibles %}
+        <table border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Fecha Límite</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in alimentos %}
+                <tr>
+                    <td>{{ item.nombre }}</td>
+                    <td>{{ item.categoria }}</td>
+                    <td>{{ item.cantidad }}</td>
+                    <td>{{ item.fecha_limite }}</td>
+                    <td>
+                        {% if item.disponible %}
+                            <span style="color: green;">Disponible</span>
+                        {% else %}
+                            <span style="color: red;">Agotado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay alimentos registrados en el sistema.</p>
+    {% endif %}
+</body>
+</html>
