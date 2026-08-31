@@ -2,47 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rescate Solidario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Plataforma de Redistribución de Alimentos (ODS 2 y ODS 12)</h1>
-    <a href="{% url 'registro' %}">Publicar Nuevo Alimento</a>
-    <hr>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-success mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Rescate Solidario (ODS 2 y 12)</span>
+            <a href="{% url 'registro' %}" class="btn btn-light btn-sm">Publicar Alimento</a>
+        </div>
+    </nav>
 
-    <h2>Alimentos Registrados</h2>
-    <p>Total de registros: <strong>{{ total_items }}</strong></p>
+    <div class="container">
+        <h4 class="mb-3">Inventario Disponible</h4>
+        <p class="text-muted">Total de registros: {{ total_items }}</p>
 
-    {% if hay_disponibles %}
-        <table border="1" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Cantidad</th>
-                    <th>Fecha Límite</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in alimentos %}
-                <tr>
-                    <td>{{ item.nombre }}</td>
-                    <td>{{ item.categoria }}</td>
-                    <td>{{ item.cantidad }}</td>
-                    <td>{{ item.fecha_limite }}</td>
-                    <td>
-                        {% if item.disponible %}
-                            <span style="color: green;">Disponible</span>
-                        {% else %}
-                            <span style="color: red;">Agotado</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No hay alimentos registrados en el sistema.</p>
-    {% endif %}
+        {% if hay_disponibles %}
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                            <th>Fecha Límite</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in alimentos %}
+                        <tr>
+                            <td>{{ item.nombre }}</td>
+                            <td>{{ item.categoria }}</td>
+                            <td>{{ item.cantidad }}</td>
+                            <td>{{ item.fecha_limite }}</td>
+                            <td>
+                                {% if item.disponible %}
+                                    <span class="badge bg-success">Disponible</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Agotado</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info border-0 shadow-sm">No hay alimentos registrados en el sistema.</div>
+        {% endif %}
+    </div>
 </body>
 </html>
