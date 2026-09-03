@@ -5,44 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rescate Solidario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f4f7f6;
+            color: #2c3e50;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .btn-publicar {
+            background-color: #fff;
+            color: #27ae60;
+            font-weight: 500;
+            border-radius: 20px;
+            padding: 0.4rem 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .btn-publicar:hover {
+            background-color: #e8f8f5;
+            transform: translateY(-2px);
+        }
+        .dashboard-header {
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .counter-badge {
+            background: #27ae60;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        .custom-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background-color: #f8faf9;
+            color: #7f8c8d;
+            font-weight: 500;
+            border-bottom: 2px solid #ecf0f1;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .table tbody tr:hover {
+            background-color: #fcfdfd;
+        }
+        .table td {
+            vertical-align: middle;
+            border-bottom: 1px solid #ecf0f1;
+            padding: 1rem 0.75rem;
+        }
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-disponible {
+            background-color: #e8f8f5;
+            color: #27ae60;
+            border: 1px solid #c2ebd7;
+        }
+        .status-agotado {
+            background-color: #fdedec;
+            color: #e74c3c;
+            border: 1px solid #f5c6cb;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 16px;
+            border: 2px dashed #bdc3c7;
+            color: #7f8c8d;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-dark bg-success mb-4">
-        <div class="container">
-            <span class="navbar-brand mb-0 h1">Rescate Solidario (ODS 2 y 12)</span>
-            <a href="{% url 'registro' %}" class="btn btn-light btn-sm">Publicar Alimento</a>
+<body>
+    <nav class="navbar navbar-dark navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span class="navbar-brand mb-0 h1">Rescate Solidario</span>
+            <a href="{% url 'registro' %}" class="btn btn-publicar text-decoration-none">
+                + Publicar Lote
+            </a>
         </div>
     </nav>
 
-    <div class="container">
-        <h4 class="mb-3">Inventario Disponible</h4>
-        <p class="text-muted">Total de registros: {{ total_items }}</p>
+    <div class="container pb-5">
+        <div class="d-flex justify-content-between align-items-end dashboard-header">
+            <div>
+                <h3 class="fw-bold mb-1">Inventario Local</h3>
+                <p class="text-muted mb-0">Alimentos disponibles para rescate</p>
+            </div>
+            <div>
+                <span class="counter-badge">{{ total_items }} registrados</span>
+            </div>
+        </div>
 
         {% if hay_disponibles %}
-        <div class="card shadow-sm border-0">
+        <div class="card custom-card">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                <table class="table table-borderless">
+                    <thead>
                         <tr>
-                            <th>Nombre</th>
+                            <th>Producto</th>
                             <th>Categoría</th>
-                            <th>Cantidad</th>
-                            <th>Fecha Límite</th>
+                            <th>Stock</th>
+                            <th>Vencimiento</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in alimentos %}
                         <tr>
-                            <td>{{ item.nombre }}</td>
+                            <td class="fw-bold text-dark">{{ item.nombre }}</td>
                             <td>{{ item.categoria }}</td>
                             <td>{{ item.cantidad }}</td>
-                            <td>{{ item.fecha_limite }}</td>
+                            <td>{{ item.fecha_limite|date:"d M, Y" }}</td>
                             <td>
                                 {% if item.disponible %}
-                                    <span class="badge bg-success">Disponible</span>
+                                    <span class="status-badge status-disponible">Disponible</span>
                                 {% else %}
-                                    <span class="badge bg-danger">Agotado</span>
+                                    <span class="status-badge status-agotado">Agotado</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -52,7 +156,10 @@
             </div>
         </div>
         {% else %}
-        <div class="alert alert-info border-0 shadow-sm">No hay alimentos registrados en el sistema.</div>
+        <div class="empty-state shadow-sm">
+            <h5 class="fw-bold">No hay alimentos publicados aún</h5>
+            <p class="mb-0">Cuando un local registre un alimento, aparecerá aquí.</p>
+        </div>
         {% endif %}
     </div>
 </body>
