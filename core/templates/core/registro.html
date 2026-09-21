@@ -3,49 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Alimento</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Rescate Solidario - Registrar Alimento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-success mb-4">
+
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
         <div class="container">
-            <span class="navbar-brand mb-0 h1">Rescate Solidario</span>
-            <a href="{% url 'index' %}" class="btn btn-outline-light btn-sm">Volver al Inicio</a>
+            <a class="navbar-brand fw-bold" href="{% url 'index' %}">
+                <i class="bi bi-box2-heart-fill me-2"></i>Rescate Solidario
+            </a>
+            <a href="{% url 'index' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Catálogo
+            </a>
         </div>
     </nav>
 
-    <div class="container">
+    <!-- Formulario -->
+    <main class="container my-5">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 text-success">Publicar Donación</h5>
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white p-4 border-0">
+                        <h1 class="h4 fw-bold text-success mb-1">
+                            <i class="bi bi-plus-square me-2"></i>Publicar Lote de Alimentos
+                        </h1>
+                        <p class="text-muted small mb-0">
+                            Ingresa los datos del excedente para habilitar su retiro por comedores comunitarios.
+                        </p>
                     </div>
-                    <div class="card-body">
-                        <form method="POST">
+
+                    <div class="card-body p-4 pt-0">
+                        <form method="POST" action="{% url 'registro' %}">
                             {% csrf_token %}
+
+                            <!-- Comercio Donante (Relación FK) -->
                             <div class="mb-3">
-                                <label class="form-label text-muted">Nombre del alimento</label>
-                                <input type="text" name="nombre" class="form-control" required>
+                                <label for="comercio" class="form-label fw-semibold text-secondary">Comercio Donante</label>
+                                <select class="form-select" id="comercio" name="comercio">
+                                    <option value="">-- Sin comercio asignado (Particular) --</option>
+                                    {% for c in comercios %}
+                                        <option value="{{ c.id }}">{{ c.razon_social }} (RUT: {{ c.rut_comercial }})</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Si tu local no aparece, regístralo desde el panel administrativo.</div>
                             </div>
+
+                            <!-- Nombre del Alimento -->
                             <div class="mb-3">
-                                <label class="form-label text-muted">Categoría</label>
-                                <input type="text" name="categoria" class="form-control" required>
+                                <label for="nombre" class="form-label fw-semibold text-secondary">Nombre del Alimento / Producto</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Marraqueta del día, Tomates de feria, etc." required>
                             </div>
+
+                            <!-- Categoría -->
                             <div class="mb-3">
-                                <label class="form-label text-muted">Cantidad (unidades o kg)</label>
-                                <input type="number" name="cantidad" class="form-control" min="1" required>
+                                <label for="categoria" class="form-label fw-semibold text-secondary">Categoría</label>
+                                <select class="form-select" id="categoria" name="categoria" required>
+                                    <option value="" selected disabled>Selecciona una categoría...</option>
+                                    <option value="Frutas y Verduras">Frutas y Verduras</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Lácteos">Lácteos</option>
+                                    <option value="Abarrotes">Abarrotes</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
                             </div>
+
+                            <!-- Cantidad -->
+                            <div class="mb-3">
+                                <label for="cantidad" class="form-label fw-semibold text-secondary">Cantidad Disponible (Unidades / Kilos)</label>
+                                <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" placeholder="Ej: 25" required>
+                            </div>
+
+                            <!-- Fecha Límite de Retiro -->
                             <div class="mb-4">
-                                <label class="form-label text-muted">Fecha Límite</label>
-                                <input type="date" name="fecha_limite" class="form-control" required>
+                                <label for="fecha_limite" class="form-label fw-semibold text-secondary">Fecha Límite de Consumo / Retiro</label>
+                                <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" required>
+                                <div class="form-text">Fecha sugerida para garantizar la inocuidad alimentaria.</div>
                             </div>
-                            <button type="submit" class="btn btn-success w-100 py-2">Guardar Registro</button>
+
+                            <!-- Botones de Acción -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success fw-bold py-2 shadow-sm">
+                                    <i class="bi bi-check2-circle me-1"></i> Confirmar y Publicar
+                                </button>
+                                <a href="{% url 'index' %}" class="btn btn-outline-secondary py-2">Cancelar</a>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
