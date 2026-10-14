@@ -1,48 +1,35 @@
-from django.shortcuts import render, redirect
-from .models import Alimento, Comercio
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Alimento
+from .forms import AlimentoForm
 
-def index(request):
-    alimentos = Alimento.objects.select_related('comercio').all()
-    total_items = alimentos.count()
-    hay_disponibles = total_items > 0
-
-    contexto = {
-        'alimentos': alimentos,
-        'total_items': total_items,
-        'hay_disponibles': hay_disponibles,
-    }
-    return render(request, 'core/index.html', contexto)
+def catalogo_alimentos(request):
+    alimentos = Alimento.objects.all().order_by('-fecha_publicacion')
+    return render(request, 'core/index.html', {'alimentos': alimentos})
 
 def registrar_alimento(request):
-    comercios = Comercio.objects.all()
-
     if request.method == 'POST':
-        comercio_id = request.POST.get('comercio')
-        nombre = request.POST.get('nombre', '').strip()
-        categoria = request.POST.get('categoria', '').strip()
-        cantidad_raw = request.POST.get('cantidad', '0').strip()
-        fecha_limite = request.POST.get('fecha_limite', '').strip()
-
-        if nombre and categoria and fecha_limite:
-            try:
-                cantidad = int(cantidad_raw)
-                if cantidad < 0:
-                    cantidad = 0
-            except ValueError:
-                cantidad = 1
-
-            comercio_obj = None
-            if comercio_id:
-                comercio_obj = Comercio.objects.filter(id=comercio_id).first()
-
-            Alimento.objects.create(
-                comercio=comercio_obj,
-                nombre=nombre,
-                categoria=categoria,
-                cantidad=cantidad,
-                fecha_limite=fecha_limite,
-                disponible=True
-            )
+        form = AlimentoForm(request.POST)
+        if form.is_valid():
+            form.save()
             return redirect('index')
+    else:
+        form = AlimentoForm()
+    return render(request, 'core/registro.html', {'form': form})
 
-    return render(request, 'core/registro.html', {'comercios': comercios})
+def editar_alimento(request, id):
+    alimento = get_object_or_404(Alimento, pk=id)
+    if request.method == 'POST':
+        form = AlimentoForm(request.POST, instance=alimento)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = AlimentoForm(instance=alimento)
+    return render(request, 'core/editar.html', {'form': form, 'alimento': alimento})
+
+def eliminar_alimento(request, id):
+    alimento = get_object_or_404(Alimento, pk=id)
+    if request.method == 'POST':
+        alimento.delete()
+        return redirect('index')
+    return render(request, 'core/confirmar_eliminar.html', {'alimento': alimento})

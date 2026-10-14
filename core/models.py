@@ -1,61 +1,55 @@
 from django.db import models
 
 class Comercio(models.Model):
-    razon_social = models.CharField(max_length=120)
-    rut_comercial = models.CharField(max_length=12, unique=True)
+    razon_social = models.CharField(max_length=150)
+    rut = models.CharField(max_length=12, unique=True)
     direccion = models.CharField(max_length=200)
-    telefono = models.CharField(max_length=15)
+    telefono = models.CharField(max_length=20)
     contacto = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.razon_social} ({self.rut_comercial})"
-
+        return self.razon_social
 
 class OrganizacionSocial(models.Model):
     nombre_entidad = models.CharField(max_length=150)
     personalidad_juridica = models.CharField(max_length=50, unique=True)
     responsable = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=15)
+    telefono = models.CharField(max_length=20)
     direccion = models.CharField(max_length=200)
 
     def __str__(self):
         return self.nombre_entidad
 
-
 class Alimento(models.Model):
     CATEGORIAS = [
-        ('Frutas y Verduras', 'Frutas y Verduras'),
-        ('Panadería y Pastelería', 'Panadería y Pastelería'),
-        ('Lácteos', 'Lácteos'),
-        ('Abarrotes', 'Abarrotes'),
-        ('Otros', 'Otros'),
+        ('Panaderia', 'Panadería y Pastelería'),
+        ('Frutas', 'Frutas y Verduras'),
+        ('Abarrotes', 'Abarrotes y No Perecibles'),
+        ('Lacteos', 'Lácteos y Refrigerados'),
     ]
 
-    comercio = models.ForeignKey(Comercio, on_delete=models.CASCADE, related_name='alimentos', null=True, blank=True)
-    nombre = models.CharField(max_length=100)
+    ESTADOS = [
+        ('Disponible', 'Disponible'),
+        ('Reservado', 'Reservado'),
+        ('Entregado', 'Entregado'),
+    ]
+
+    comercio = models.ForeignKey(Comercio, on_delete=models.CASCADE, related_name='alimentos')
+    nombre_producto = models.CharField(max_length=150)
     categoria = models.CharField(max_length=50, choices=CATEGORIAS)
     cantidad = models.PositiveIntegerField()
-    disponible = models.BooleanField(default=True)
-    fecha_limite = models.DateField()
-    creado_el = models.DateTimeField(auto_now_add=True)
+    fecha_vencimiento = models.DateField()
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='Disponible')
+    fecha_publicacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.nombre} ({self.cantidad} un.)"
-
+        return f"{self.nombre_producto} ({self.cantidad} unidades)"
 
 class ReservaDonacion(models.Model):
-    ESTADOS = [
-        ('Pendiente', 'Pendiente de Retiro'),
-        ('Retirado', 'Retirado Conforme'),
-        ('Cancelado', 'Cancelado'),
-    ]
-
-    alimento = models.ForeignKey(Alimento, on_delete=models.CASCADE, related_name='reservas')
+    alimento = models.OneToOneField(Alimento, on_delete=models.CASCADE, related_name='reserva')
     organizacion = models.ForeignKey(OrganizacionSocial, on_delete=models.CASCADE, related_name='reservas')
     fecha_reserva = models.DateTimeField(auto_now_add=True)
-    fecha_retiro = models.DateField(null=True, blank=True)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
-    observaciones = models.TextField(blank=True, null=True)
+    completada = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Reserva #{self.id} - {self.alimento.nombre} -> {self.organizacion.nombre_entidad}"
+        return f"Reserva #{self.id} - {self.alimento.nombre_producto}"

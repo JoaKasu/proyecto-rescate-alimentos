@@ -1,131 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rescate Solidario - Panel de Alimentos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        .badge-ods { background-color: #d3a029; color: #fff; }
-        .badge-ods12 { background-color: #bf8b2e; color: #fff; }
-    </style>
-</head>
-<body class="bg-light">
+{% extends 'core/base.html' %}
 
-    <!-- Barra de Navegación -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'index' %}">
-                <i class="bi bi-box2-heart-fill me-2"></i>Rescate Solidario
-            </a>
-            <div class="d-flex align-items-center">
-                <a href="{% url 'registro' %}" class="btn btn-warning fw-semibold shadow-sm">
-                    <i class="bi bi-plus-circle me-1"></i> Publicar Alimento
-                </a>
+{% block title %}Catálogo - Rescate Solidario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Alimentos Disponibles</h3>
+        <p class="text-muted small mb-0">Listado de excedentes alimentarios publicados para donación directa.</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for a in alimentos %}
+    <div class="col-md-4 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-secondary text-uppercase" style="font-size: 0.65rem;">{{ a.get_categoria_display }}</span>
+                    <span class="badge bg-success opacity-75" style="font-size: 0.65rem;">{{ a.estado }}</span>
+                </div>
+                <h5 class="card-title fw-bold text-dark mb-3">{{ a.nombre_producto }}</h5>
+                <ul class="list-unstyled small text-muted mb-4 flex-grow-1">
+                    <li class="mb-1"><i class="fa-solid fa-store me-2"></i><strong>Comercio:</strong> {{ a.comercio.razon_social }}</li>
+                    <li class="mb-1"><i class="fa-solid fa-boxes-stacked me-2"></i><strong>Cantidad:</strong> {{ a.cantidad }} unidades</li>
+                    <li><i class="fa-regular fa-calendar-xmark me-2"></i><strong>Vence:</strong> {{ a.fecha_vencimiento|date:"d/m/Y" }}</li>
+                </ul>
+                <div class="d-flex gap-2 pt-2 border-top">
+                    <a href="{% url 'editar_alimento' a.id %}" class="btn btn-sm btn-outline-secondary w-50">Editar</a>
+                    <a href="{% url 'eliminar_alimento' a.id %}" class="btn btn-sm btn-outline-danger w-50">Eliminar</a>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Contenedor Principal -->
-    <main class="container my-4">
-        <!-- Banner de Impacto Social / ODS -->
-        <section class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <h1 class="h3 fw-bold text-success mb-2">Reducción de Mermas y Seguridad Alimentaria</h1>
-                        <p class="text-secondary mb-3">
-                            Plataforma comunitaria de distribución de excedentes comerciales para comedores sociales y ollas comunes.
-                        </p>
-                        <div>
-                            <span class="badge badge-ods me-1 py-2 px-3 rounded-pill">ODS 2: Hambre Cero</span>
-                            <span class="badge badge-ods12 py-2 px-3 rounded-pill">ODS 12: Producción y Consumo Responsable</span>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                        <div class="p-3 bg-light rounded-3 d-inline-block text-center border">
-                            <span class="text-uppercase text-muted small fw-bold d-block">Lotes Disponibles</span>
-                            <span class="display-6 fw-bold text-success">{{ total_items }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tabla / Listado de Alimentos -->
-        <section class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 border-0">
-                <h2 class="h5 fw-bold mb-0 text-secondary">
-                    <i class="bi bi-card-checklist me-2 text-success"></i>Lotes Registrados en Tiempo Real
-                </h2>
-            </div>
-            <div class="card-body p-0">
-                {% if hay_disponibles %}
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" class="ps-4">Alimento</th>
-                                <th scope="col">Comercio Donante</th>
-                                <th scope="col">Categoría</th>
-                                <th scope="col" class="text-center">Cantidad</th>
-                                <th scope="col">Fecha Límite</th>
-                                <th scope="col" class="text-center">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in alimentos %}
-                            <tr>
-                                <td class="ps-4 fw-semibold text-dark">
-                                    {{ item.nombre }}
-                                </td>
-                                <td>
-                                    {% if item.comercio %}
-                                        <span class="fw-medium text-primary">{{ item.comercio.razon_social }}</span>
-                                        <small class="text-muted d-block">{{ item.comercio.direccion }}</small>
-                                    {% else %}
-                                        <span class="text-muted fst-italic">Donante no asignado</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis border">
-                                        {{ item.categoria }}
-                                    </span>
-                                </td>
-                                <td class="text-center fw-bold">{{ item.cantidad }} un.</td>
-                                <td>{{ item.fecha_limite|date:"d/m/Y" }}</td>
-                                <td class="text-center pe-4">
-                                    {% if item.disponible %}
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">
-                                            Disponible
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">
-                                            Reservado
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="p-5 text-center text-muted">
-                    <i class="bi bi-inbox fs-1 d-block mb-3 text-secondary"></i>
-                    <p class="lead mb-3">No hay lotes de alimentos registrados actualmente.</p>
-                    <a href="{% url 'registro' %}" class="btn btn-sm btn-outline-success">Registrar el primer lote</a>
-                </div>
-                {% endif %}
-            </div>
-        </section>
-    </main>
-
-    <footer class="text-center py-4 text-muted small">
-        <p class="mb-0">Proyecto Académico Back End &bull; Rescate Solidario &bull; Agenda 2030</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-light border text-center py-5">
+            <i class="fa-solid fa-inbox fa-2x text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">No hay alimentos registrados en la base de datos</h5>
+            <a href="{% url 'registrar_alimento' %}" class="btn btn-sm btn-success mt-2">Publicar primer registro</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

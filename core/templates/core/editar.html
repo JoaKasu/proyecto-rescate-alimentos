@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Editar Alimento{% endblock %}
+
+{% block content %}
+<div class="container my-3" style="max-width: 650px;">
+    <div class="card card-custom">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="fw-bold mb-0 text-warning text-dark"><i class="fa-solid fa-pen-to-square me-2"></i>Modificar Registro de Alimento</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-between mt-4 pt-2 border-top">
+                    <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-warning fw-semibold">Actualizar Alimento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
