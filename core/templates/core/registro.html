@@ -1,23 +1,60 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Publicar Alimento{% endblock %}
+{% block title %}Publicar alimento - Rescate Solidario{% endblock %}
 
 {% block content %}
-<div class="container my-3" style="max-width: 650px;">
-    <div class="card card-custom">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-plus-circle me-2"></i>Publicar Excedente Alimentario</h5>
-        </div>
-        <div class="card-body p-4">
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="d-flex justify-content-between mt-4 pt-2 border-top">
-                    <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success fw-semibold">Guardar y Publicar</button>
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-7">
+        <div class="panel">
+            <div class="panel-head">
+                <h1 class="h4 fw-bold mb-1 text-success"><i class="fa-solid fa-plus-circle me-2"></i>Publicar excedente alimentario</h1>
+                <p class="texto-suave mb-0 small">Completa los datos del producto. Quedará visible de inmediato en el catálogo.</p>
+            </div>
+            <div class="panel-body">
+
+                <div class="alert alert-info border-0 mb-4" style="background-color: #e0f2fe;">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-circle-info fa-2x me-3 text-primary opacity-75"></i>
+                        <div>
+                            <p class="mb-0 fw-semibold text-dark">¿Tu comercio no aparece en la lista?</p>
+                            <a href="{% url 'registrar_comercio' %}" class="text-decoration-none fw-bold text-primary">Regístralo primero haciendo clic aquí &rarr;</a>
+                        </div>
+                    </div>
                 </div>
-            </form>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include 'core/_campos_form.html' %}
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <a href="{% url 'catalogo' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-marca px-4">Publicar alimento</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+    <aside class="col-lg-4">
+        <div class="panel panel-body">
+            <h2 class="h6 fw-bold mb-3">Antes de publicar</h2>
+            <ul class="list-unstyled mb-0 small">
+                <li class="d-flex gap-2 mb-3"><i class="fa-solid fa-calendar-check text-success mt-1"></i><span>Indica la fecha de vencimiento real: el catálogo muestra cuántos días quedan.</span></li>
+                <li class="d-flex gap-2 mb-3"><i class="fa-solid fa-boxes-stacked text-success mt-1"></i><span>Escribe la cantidad en unidades para que la organización sepa cuánto retirar.</span></li>
+                <li class="d-flex gap-2"><i class="fa-solid fa-heart text-success mt-1"></i><span>Cada alimento publicado evita desperdicio y ayuda a una comunidad (ODS 2 y 12).</span></li>
+            </ul>
+        </div>
+    </aside>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var campo = document.getElementById('id_fecha_vencimiento');
+    if (!campo) { return; }
+    var d = new Date();
+    var mes = ('0' + (d.getMonth() + 1)).slice(-2), dia = ('0' + d.getDate()).slice(-2);
+    campo.setAttribute('min', d.getFullYear() + '-' + mes + '-' + dia);
+})();
+</script>
 {% endblock %}

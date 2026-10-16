@@ -4,103 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Rescate Solidario - Plataforma de Donación Alimentaria{% endblock %}</title>
-    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
-            --brand-green: #1b5235;
-            --brand-accent: #2e7d32;
+            --verde-oscuro: #1b5235;
+            --verde: #2e7d32;
+            --menta: #e6f0e8;
+            --ambar: #f2a900;
+            --rojo: #b3361f;
+            --fondo: #f3f6f4;
+            --tinta: #17261e;
+            --tinta-suave: #5a6b61;
+            --borde: #d9e2dc;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #333333;
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: var(--fondo);
+            color: var(--tinta);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            font-size: 1.02rem;
         }
 
+        h1, h2, h3, h4, h5, .navbar-brand {
+            font-family: 'Bricolage Grotesque', 'Source Sans 3', sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        a { color: var(--verde-oscuro); }
+        :focus-visible { outline: 3px solid var(--ambar); outline-offset: 2px; }
+
+        .skip-link {
+            position: absolute; left: -999px; top: 8px;
+            background: #fff; color: var(--verde-oscuro);
+            padding: .5rem 1rem; border-radius: 6px; z-index: 2000;
+        }
+        .skip-link:focus { left: 8px; }
+
+        /* Barra de navegación */
         .navbar-custom {
-            background-color: var(--brand-green);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: var(--verde-oscuro);
+            border-bottom: 3px solid var(--ambar);
         }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.25rem;
+        .navbar-brand { font-weight: 800; font-size: 1.3rem; }
+        .brand-mark {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--ambar); color: var(--verde-oscuro); font-size: 1rem;
         }
-
-        .main-container {
-            flex: 1;
+        .navbar-custom .nav-link {
+            color: rgba(255,255,255,.82); font-weight: 600; padding: .5rem .9rem; border-radius: 6px;
         }
-
-        .card-custom {
-            border: 1px solid #e0e6ed;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            background: #ffffff;
-        }
-
-        .card-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
+        .navbar-custom .nav-link:hover { color: #fff; background: rgba(255,255,255,.08); }
+        .navbar-custom .nav-link.active { color: #fff; background: rgba(255,255,255,.14); }
         .badge-ods {
-            background-color: #d4edda;
-            color: #155724;
-            font-weight: 600;
-            padding: 0.35em 0.65em;
-            border-radius: 4px;
-            font-size: 0.75rem;
+            background: rgba(255,255,255,.12); color: #e6f0e8;
+            font-weight: 600; padding: .45em .8em; border-radius: 999px; font-size: .78rem;
         }
+        .btn-publicar {
+            background: var(--ambar); color: var(--tinta); font-weight: 700; border: 0;
+        }
+        .btn-publicar:hover { background: #ffbf2e; color: var(--tinta); }
+
+        /* Botones y formularios */
+        .btn-marca { background: var(--verde-oscuro); color: #fff; font-weight: 600; border: 0; }
+        .btn-marca:hover { background: var(--verde); color: #fff; }
+        .btn-outline-marca { border: 1px solid var(--verde-oscuro); color: var(--verde-oscuro); font-weight: 600; background: transparent; }
+        .btn-outline-marca:hover { background: var(--verde-oscuro); color: #fff; }
+        .form-control, .form-select { border-color: var(--borde); padding: .6rem .8rem; border-radius: 8px; }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--verde);
+            box-shadow: 0 0 0 .22rem rgba(46,125,50,.18);
+        }
+
+        /* Superficies */
+        .panel {
+            background: #fff; border: 1px solid var(--borde); border-radius: 12px;
+        }
+        .panel-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--borde); }
+        .panel-body { padding: 1.5rem; }
+        .texto-suave { color: var(--tinta-suave); }
+
+        /* Etiquetas de estado */
+        .estado {
+            display: inline-flex; align-items: center; gap: .35rem;
+            font-size: .78rem; font-weight: 700; padding: .25rem .65rem; border-radius: 999px;
+        }
+        .estado::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+        .estado-disponible { background: #dff1e3; color: #1b5e20; }
+        .estado-reservado { background: #fff1cc; color: #7a5200; }
+        .estado-entregado { background: #e3e9f2; color: #34476b; }
+
+        .main-container { flex: 1; }
 
         footer {
-            background-color: #1e293b;
-            color: #94a3b8;
-            font-size: 0.875rem;
+            background-color: var(--tinta);
+            color: #a9b8af;
+            font-size: .9rem;
+        }
+        footer strong { color: #e6f0e8; }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; animation: none !important; }
         }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-2">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'catalogo' %}">
-                <i class="fa-solid fa-seedling text-warning"></i>
+                <span class="brand-mark"><i class="fa-solid fa-seedling"></i></span>
                 <span>Rescate Solidario</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto ms-lg-4">
+                <ul class="navbar-nav me-auto ms-lg-3 gap-lg-1">
                     <li class="nav-item">
-                        <a class="nav-link text-white active" href="{% url 'catalogo' %}">
-                            <i class="fa-solid fa-list-check me-1 opacity-75"></i> Catálogo de Alimentos
+                        <a class="nav-link {% if request.resolver_match.url_name == 'catalogo' %}active{% endif %}" href="{% url 'catalogo' %}">
+                            <i class="fa-solid fa-list-check me-1 opacity-75"></i> Catálogo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'registrar_comercio' %}active{% endif %}" href="{% url 'registrar_comercio' %}">
+                            <i class="fa-solid fa-store me-1 opacity-75"></i> Únete como comercio
                         </a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge badge-ods d-none d-md-inline-block">
-                        <i class="fa-solid fa-earth-americas me-1"></i> Alineado a ODS 2 & 12
+                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                    <span class="badge-ods d-none d-xl-inline-block">
+                        <i class="fa-solid fa-earth-americas me-1"></i> Alineado a ODS 2 y 12
                     </span>
-                    <a href="{% url 'registrar_alimento' %}" class="btn btn-warning font-weight-bold text-dark px-3 py-2 btn-sm fw-semibold">
-                        <i class="fa-solid fa-plus me-1"></i> Publicar Alimento
+                    <a href="{% url 'registrar_alimento' %}" class="btn btn-publicar px-3 py-2 btn-sm">
+                        <i class="fa-solid fa-plus me-1"></i> Publicar alimento
                     </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="main-container my-4">
+    <main class="main-container my-4" id="contenido">
         <div class="container">
+            {% if messages %}
+            <div class="mb-4" role="status">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             {% block content %}
             {% endblock %}
         </div>
@@ -109,18 +178,19 @@
     <footer class="mt-auto py-4">
         <div class="container">
             <div class="row gy-3 align-items-center">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0 fw-medium">Plataforma de Gestión y Reducción del Desperdicio Alimentario</p>
-                    <small class="text-muted">Iniciativa académica orientada a los Objetivos de Desarrollo Sostenible (ONU).</small>
+                <div class="col-md-7 text-center text-md-start">
+                    <p class="mb-1"><strong>Rescate Solidario</strong></p>
+                    <small>Reducimos el desperdicio de alimentos conectando comercios con organizaciones sociales. Iniciativa académica de INACAP alineada con los Objetivos de Desarrollo Sostenible de la ONU.</small>
                 </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <span class="small me-3"><i class="fa-solid fa-shield-halved me-1"></i> Entorno Seguro</span>
-                    <span class="small"><i class="fa-solid fa-code me-1"></i> Arquitectura MVT Django</span>
+                <div class="col-md-5 text-center text-md-end">
+                    <span class="small me-3"><i class="fa-solid fa-shield-halved me-1"></i> Formularios protegidos</span>
+                    <span class="small"><i class="fa-solid fa-code me-1"></i> Django, arquitectura MVT</span>
                 </div>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

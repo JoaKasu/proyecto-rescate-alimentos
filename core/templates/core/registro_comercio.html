@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Únete como comercio - Rescate Solidario{% endblock %}
+
+{% block content %}
+<div class="row g-4 justify-content-center my-2">
+    <div class="col-lg-6">
+        <div class="panel overflow-hidden">
+            <div class="text-white text-center py-4 px-3" style="background: var(--verde-oscuro);">
+                <i class="fa-solid fa-store fa-2x mb-2"></i>
+                <h1 class="h3 fw-bold mb-1">Registra tu comercio</h1>
+                <p class="small mb-0 opacity-75">Únete a la red contra el desperdicio alimentario</p>
+            </div>
+            <div class="panel-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include 'core/_campos_form.html' %}
+                    <div class="d-grid mt-4 pt-2">
+                        <button type="submit" class="btn btn-marca btn-lg fw-bold">
+                            Registrar comercio <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                    <p class="small texto-suave text-center mt-3 mb-0">Al terminar volverás al formulario para publicar tu primer alimento.</p>
+                </form>
+            </div>
+            <div class="bg-light text-center py-3 border-top">
+                <small class="texto-suave"><i class="fa-solid fa-shield-halved me-1"></i> Tus datos se guardan de forma segura. Alineado al ODS 12.</small>
+            </div>
+        </div>
+    </div>
+
+    <aside class="col-lg-4">
+        <div class="panel panel-body">
+            <h2 class="h6 fw-bold mb-3">Qué ganas al unirte</h2>
+            <ul class="list-unstyled mb-0 small">
+                <li class="d-flex gap-2 mb-3"><i class="fa-solid fa-bullhorn text-success mt-1"></i><span>Publicas tus excedentes en minutos y las organizaciones los ven al instante.</span></li>
+                <li class="d-flex gap-2 mb-3"><i class="fa-solid fa-recycle text-success mt-1"></i><span>Reduces mermas y el impacto ambiental de tu local.</span></li>
+                <li class="d-flex gap-2"><i class="fa-solid fa-hand-holding-heart text-success mt-1"></i><span>Tu aporte llega a comedores sociales y ayuda humanitaria.</span></li>
+            </ul>
+        </div>
+    </aside>
+</div>
+{% endblock %}

@@ -2,44 +2,206 @@
 
 {% block title %}Catálogo - Rescate Solidario{% endblock %}
 
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="fw-bold mb-1">Alimentos Disponibles</h3>
-        <p class="text-muted small mb-0">Listado de excedentes alimentarios publicados para donación directa.</p>
-    </div>
-</div>
+{% block extra_head %}
+<style>
+    .cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1rem; margin-bottom: 1.25rem; }
+    .cabecera h1 { font-size: 2rem; font-weight: 800; margin: 0 0 .25rem; color: var(--verde-oscuro); }
 
-<div class="row">
+    .resumen { display: flex; flex-wrap: wrap; gap: 0; background: #fff; border: 1px solid var(--borde); border-radius: 12px; margin-bottom: 1.25rem; overflow: hidden; }
+    .resumen > div { flex: 1 1 160px; padding: .9rem 1.25rem; border-right: 1px solid var(--borde); }
+    .resumen > div:last-child { border-right: 0; }
+    .resumen .num { font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.8rem; font-weight: 800; line-height: 1.1; }
+    .resumen .num.urgente { color: var(--rojo); }
+    .resumen .lbl { font-size: .88rem; color: var(--tinta-suave); }
+
+    .barra { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; }
+    .barra .buscar { flex: 2 1 240px; position: relative; }
+    .barra .buscar i { position: absolute; left: .9rem; top: 50%; transform: translateY(-50%); color: var(--tinta-suave); }
+    .barra .buscar input { padding-left: 2.4rem; }
+    .barra select { flex: 1 1 150px; }
+
+    .alimento {
+        background: #fff; border: 1px solid var(--borde); border-radius: 12px; overflow: hidden;
+        display: flex; flex-direction: column; height: 100%;
+    }
+    .alimento-cuerpo { padding: 1.15rem 1.25rem 1rem; display: flex; flex-direction: column; flex: 1; }
+    .alimento .cat { font-size: .88rem; font-weight: 600; color: var(--tinta-suave); }
+    .alimento .cat i { color: var(--verde); margin-right: .4rem; }
+    .alimento-nombre { font-size: 1.3rem; font-weight: 700; margin: .7rem 0 .2rem; }
+    .alimento .comercio { color: var(--tinta-suave); margin-bottom: .9rem; font-size: .95rem; }
+    .alimento .datos { display: flex; gap: 1.5rem; margin: 0 0 1rem; font-size: .92rem; }
+    .alimento .datos dt { font-weight: 600; color: var(--tinta-suave); font-size: .8rem; }
+    .alimento .datos dd { margin: 0; font-weight: 600; }
+
+    /* Cuenta regresiva de vencimiento: el dato más importante de la tarjeta */
+    .vence { display: flex; align-items: baseline; gap: .6rem; padding: .7rem 1.25rem; border-top: 1px solid var(--borde); background: var(--menta); }
+    .vence .n { font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.7rem; font-weight: 800; line-height: 1; color: var(--verde-oscuro); }
+    .vence .t { font-size: .92rem; font-weight: 600; color: var(--verde-oscuro); }
+    .vence .f { margin-left: auto; font-size: .82rem; color: var(--tinta-suave); }
+    .vence.pronto { background: #fff1cc; } .vence.pronto .n, .vence.pronto .t { color: #7a5200; }
+    .vence.vencido { background: #fbe3dd; } .vence.vencido .n, .vence.vencido .t { color: var(--rojo); }
+    .vence.cerrado { background: #e9edf2; } .vence.cerrado .n, .vence.cerrado .t { color: #34476b; }
+
+    .alimento-acciones { display: flex; gap: .5rem; padding: .85rem 1.25rem; border-top: 1px solid var(--borde); }
+    .alimento-acciones .btn { flex: 1; font-weight: 600; }
+    .sin-resultados { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="cabecera">
+    <div>
+        <h1>Alimentos disponibles</h1>
+        <p class="texto-suave mb-0">Excedentes publicados por comercios, listos para donación directa.</p>
+    </div>
+    <a href="{% url 'registrar_alimento' %}" class="btn btn-marca px-4 py-2">
+        <i class="fa-solid fa-plus me-2"></i>Publicar alimento
+    </a>
+</header>
+
+{% if alimentos %}
+<section class="resumen" aria-label="Resumen del catálogo">
+    <div><div class="num" id="st-total">{{ alimentos|length }}</div><div class="lbl">alimentos publicados</div></div>
+    <div><div class="num" id="st-disp">0</div><div class="lbl">disponibles ahora</div></div>
+    <div><div class="num urgente" id="st-urg">0</div><div class="lbl">vencen en 3 días o menos</div></div>
+</section>
+
+<section class="barra" aria-label="Filtros">
+    <div class="buscar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="f-texto" class="form-control" placeholder="Buscar por producto o comercio" aria-label="Buscar por producto o comercio">
+    </div>
+    <select id="f-estado" class="form-select" aria-label="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="Disponible">Disponible</option>
+        <option value="Reservado">Reservado</option>
+        <option value="Entregado">Entregado</option>
+    </select>
+    <select id="f-cat" class="form-select" aria-label="Filtrar por categoría">
+        <option value="">Todas las categorías</option>
+        <option value="Panaderia">Panadería y Pastelería</option>
+        <option value="Frutas">Frutas y Verduras</option>
+        <option value="Abarrotes">Abarrotes y No Perecibles</option>
+        <option value="Lacteos">Lácteos y Refrigerados</option>
+    </select>
+    <select id="f-orden" class="form-select" aria-label="Ordenar">
+        <option value="reciente">Más recientes primero</option>
+        <option value="vence">Los que vencen primero</option>
+    </select>
+</section>
+{% endif %}
+
+<div class="row g-4" id="grilla">
     {% for a in alimentos %}
-    <div class="col-md-4 mb-4">
-        <div class="card card-custom h-100">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-secondary text-uppercase" style="font-size: 0.65rem;">{{ a.get_categoria_display }}</span>
-                    <span class="badge bg-success opacity-75" style="font-size: 0.65rem;">{{ a.estado }}</span>
+    <div class="col-md-6 col-xl-4 item"
+         data-nombre="{{ a.nombre_producto|lower }}"
+         data-comercio="{{ a.comercio.razon_social|lower }}"
+         data-estado="{{ a.estado }}"
+         data-cat="{{ a.categoria }}"
+         data-vence="{{ a.fecha_vencimiento|date:'Y-m-d' }}"
+         data-pub="{{ a.fecha_publicacion|date:'U' }}">
+        <article class="alimento">
+            <div class="alimento-cuerpo">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <span class="cat">
+                        <i class="fa-solid {% if a.categoria == 'Panaderia' %}fa-bread-slice{% elif a.categoria == 'Frutas' %}fa-apple-whole{% elif a.categoria == 'Lacteos' %}fa-cheese{% else %}fa-box-open{% endif %}"></i>{{ a.get_categoria_display }}
+                    </span>
+                    <span class="estado estado-{{ a.estado|lower }}">{{ a.estado }}</span>
                 </div>
-                <h5 class="card-title fw-bold text-dark mb-3">{{ a.nombre_producto }}</h5>
-                <ul class="list-unstyled small text-muted mb-4 flex-grow-1">
-                    <li class="mb-1"><i class="fa-solid fa-store me-2"></i><strong>Comercio:</strong> {{ a.comercio.razon_social }}</li>
-                    <li class="mb-1"><i class="fa-solid fa-boxes-stacked me-2"></i><strong>Cantidad:</strong> {{ a.cantidad }} unidades</li>
-                    <li><i class="fa-regular fa-calendar-xmark me-2"></i><strong>Vence:</strong> {{ a.fecha_vencimiento|date:"d/m/Y" }}</li>
-                </ul>
-                <div class="d-flex gap-2 pt-2 border-top">
-                    <a href="{% url 'editar_alimento' a.id %}" class="btn btn-sm btn-outline-secondary w-50">Editar</a>
-                    <a href="{% url 'eliminar_alimento' a.id %}" class="btn btn-sm btn-outline-danger w-50">Eliminar</a>
-                </div>
+                <h2 class="alimento-nombre">{{ a.nombre_producto }}</h2>
+                <p class="comercio"><i class="fa-solid fa-store me-2"></i>{{ a.comercio.razon_social }}</p>
+                <dl class="datos">
+                    <div><dt>Cantidad</dt><dd>{{ a.cantidad }} unidades</dd></div>
+                    <div><dt>Publicado</dt><dd>{{ a.fecha_publicacion|date:"d/m/Y" }}</dd></div>
+                </dl>
             </div>
-        </div>
+            <div class="vence" data-role="vence">
+                <span class="n">-</span><span class="t">Calculando</span>
+                <span class="f">{{ a.fecha_vencimiento|date:"d/m/Y" }}</span>
+            </div>
+            <div class="alimento-acciones">
+                <a href="{% url 'editar_alimento' a.id %}" class="btn btn-sm btn-outline-marca"><i class="fa-solid fa-pen me-1"></i>Editar</a>
+                <a href="{% url 'eliminar_alimento' a.id %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash-can me-1"></i>Eliminar</a>
+            </div>
+        </article>
     </div>
     {% empty %}
     <div class="col-12">
-        <div class="alert alert-light border text-center py-5">
-            <i class="fa-solid fa-inbox fa-2x text-muted mb-3 d-block"></i>
-            <h5 class="text-muted">No hay alimentos registrados en la base de datos</h5>
-            <a href="{% url 'registrar_alimento' %}" class="btn btn-sm btn-success mt-2">Publicar primer registro</a>
+        <div class="panel text-center py-5 px-3">
+            <i class="fa-solid fa-basket-shopping fa-2x text-muted mb-3 d-block"></i>
+            <h2 class="h4">Aún no hay alimentos publicados</h2>
+            <p class="texto-suave mb-3">Publica el primer excedente para que las organizaciones puedan verlo.</p>
+            <a href="{% url 'registrar_alimento' %}" class="btn btn-marca">Publicar primer alimento</a>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<div class="panel text-center py-5 px-3 sin-resultados" id="sin-resultados">
+    <i class="fa-solid fa-magnifying-glass fa-2x text-muted mb-3 d-block"></i>
+    <h2 class="h5">Ningún alimento coincide con tu búsqueda</h2>
+    <p class="texto-suave mb-0">Prueba con otro nombre o quita algún filtro.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var items = Array.prototype.slice.call(document.querySelectorAll('.item'));
+    if (!items.length) { return; }
+    var grilla = document.getElementById('grilla');
+    var hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    var disp = 0, urg = 0;
+
+    items.forEach(function (it) {
+        var p = it.dataset.vence.split('-');
+        var f = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+        var dias = Math.round((f - hoy) / 86400000);
+        it.dataset.dias = dias;
+        var box = it.querySelector('[data-role="vence"]');
+        var n = box.querySelector('.n'), t = box.querySelector('.t');
+        if (it.dataset.estado === 'Entregado') {
+            box.classList.add('cerrado'); n.textContent = 'OK'; t.textContent = 'Donación entregada';
+        } else if (dias < 0) {
+            box.classList.add('vencido'); n.textContent = Math.abs(dias); t.textContent = Math.abs(dias) === 1 ? 'día de vencido' : 'días de vencido';
+        } else if (dias === 0) {
+            box.classList.add('pronto'); n.textContent = 'Hoy'; t.textContent = 'es el último día';
+        } else {
+            if (dias <= 3) { box.classList.add('pronto'); }
+            n.textContent = dias; t.textContent = dias === 1 ? 'día para vencer' : 'días para vencer';
+        }
+        if (it.dataset.estado === 'Disponible') { disp++; }
+        if (it.dataset.estado !== 'Entregado' && dias >= 0 && dias <= 3) { urg++; }
+    });
+    document.getElementById('st-disp').textContent = disp;
+    document.getElementById('st-urg').textContent = urg;
+
+    var fTexto = document.getElementById('f-texto'), fEstado = document.getElementById('f-estado'),
+        fCat = document.getElementById('f-cat'), fOrden = document.getElementById('f-orden'),
+        sin = document.getElementById('sin-resultados');
+
+    function aplicar() {
+        var q = fTexto.value.trim().toLowerCase(), visibles = 0;
+        items.forEach(function (it) {
+            var ok = (!q || it.dataset.nombre.indexOf(q) > -1 || it.dataset.comercio.indexOf(q) > -1) &&
+                     (!fEstado.value || it.dataset.estado === fEstado.value) &&
+                     (!fCat.value || it.dataset.cat === fCat.value);
+            it.style.display = ok ? '' : 'none';
+            if (ok) { visibles++; }
+        });
+        sin.style.display = visibles ? 'none' : 'block';
+    }
+    function ordenar() {
+        var lista = items.slice().sort(function (a, b) {
+            if (fOrden.value === 'vence') { return a.dataset.dias - b.dataset.dias; }
+            return b.dataset.pub - a.dataset.pub;
+        });
+        lista.forEach(function (it) { grilla.appendChild(it); });
+    }
+    fTexto.addEventListener('input', aplicar);
+    fEstado.addEventListener('change', aplicar);
+    fCat.addEventListener('change', aplicar);
+    fOrden.addEventListener('change', ordenar);
+})();
+</script>
 {% endblock %}
